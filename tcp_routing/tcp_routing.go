@@ -70,7 +70,7 @@ var _ = TCPRoutingDescribe("TCP Routing", func() {
 		})
 
 		It("maps a single external port to an application's container port", func() {
-			resp, err := sendAndReceive(domainName, externalPort1)
+			resp, err := SendAndReceive(domainName, externalPort1)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(resp).To(ContainSubstring(serverId1))
 		})
@@ -123,11 +123,11 @@ var _ = TCPRoutingDescribe("TCP Routing", func() {
 			})
 
 			It("maps both ports to the same application", func() {
-				resp1, err := sendAndReceive(domainName, externalPort1)
+				resp1, err := SendAndReceive(domainName, externalPort1)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(resp1).To(ContainSubstring(serverId1))
 
-				resp2, err := sendAndReceive(domainName, externalPort2)
+				resp2, err := SendAndReceive(domainName, externalPort2)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(resp2).To(ContainSubstring(serverId1))
 			})
@@ -139,7 +139,7 @@ func getNServerResponses(n int, domainName, externalPort1 string) ([]string, err
 	var responses []string
 
 	for i := 0; i < n; i++ {
-		resp, err := sendAndReceive(domainName, externalPort1)
+		resp, err := SendAndReceive(domainName, externalPort1)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +158,7 @@ func mapTCPRoute(appName, domainName string) string {
 	return r.FindStringSubmatch(string(createRouteSession.Out.Contents()))[1]
 }
 
-func sendAndReceive(addr string, externalPort string) (string, error) {
+func SendAndReceive(addr string, externalPort string) (string, error) {
 	address := fmt.Sprintf("%s:%s", addr, externalPort)
 
 	conn, err := net.Dial("tcp", address)
@@ -173,7 +173,7 @@ func sendAndReceive(addr string, externalPort string) (string, error) {
 	if err != nil {
 		if ne, ok := err.(*net.OpError); ok {
 			if ne.Temporary() {
-				return sendAndReceive(addr, externalPort)
+				return SendAndReceive(addr, externalPort)
 			}
 		}
 
@@ -185,7 +185,7 @@ func sendAndReceive(addr string, externalPort string) (string, error) {
 	if err != nil {
 		if ne, ok := err.(*net.OpError); ok {
 			if ne.Temporary() {
-				return sendAndReceive(addr, externalPort)
+				return SendAndReceive(addr, externalPort)
 			}
 		}
 
